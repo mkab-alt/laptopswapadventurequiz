@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Swap Adventure Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #c3aed4 0%, #a0c4ff 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #3b0764;
+        }
+
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 2px solid #3b0764;
+            border-radius: 1rem;
+            box-shadow: 4px 4px 0 #3b0764;
+            padding: 1.5rem;
+            max-width: 90%;
+        }
+        
+        .speech-bubble.right:before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #fff;
+            z-index: 10;
+        }
+
+        .feedback-bubble {
+            background: #fff;
+            border: 2px solid #3b0764;
+            border-radius: 1rem;
+            box-shadow: 4px 4px 0 #3b0764;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .feedback-bubble:before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -22px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 20px solid #fff;
+            z-index: 10;
+        }
+        .feedback-bubble:after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -26px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 20px solid #3b0764;
+            z-index: 9;
+        }
+
+        .manga-character-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .button-style {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button-style:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0 #3b0764;
+        }
+
+        .button-style:active {
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0 #3b0764;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .manga-character-container {
+                margin-top: 2rem;
+            }
+            .feedback-bubble:before, .feedback-bubble:after {
+                left: 50%;
+                top: -22px;
+                transform: translateX(-50%);
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 20px solid #fff;
+                border-top: none;
+            }
+            .feedback-bubble:after {
+                top: -26px;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 20px solid #3b0764;
+                border-top: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-4xl w-full mx-auto p-6 bg-white rounded-3xl shadow-xl border-4 border-purple-900 flex flex-col items-center relative">
+        <h1 class="text-4xl font-bold text-purple-900 mb-2 text-center">Laptop Swap Adventure Quiz</h1>
+        <p class="text-lg text-purple-700 mb-6 text-center">Don't worry, you can guess as many times as you need to get the right answer!</p>
+        <p id="introduction-text" class="text-lg text-purple-700 mb-6 text-center"></p>
+
+        <div class="main-content flex flex-col md:flex-row w-full gap-8">
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="w-full md:w-1/2 flex flex-col items-center">
+                <!-- Question and Options will be rendered here -->
+            </div>
+
+            <!-- Feedback and Character Panel -->
+            <div id="feedback-panel" class="w-full md:w-1/2 flex flex-col items-center justify-center hidden">
+                <div class="manga-character-container">
+                    <div id="feedback-bubble" class="feedback-bubble text-lg font-bold text-center p-4 min-h-[100px] flex items-center justify-center mb-4">
+                        <p id="feedback-message" class="text-purple-800"></p>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-32 h-32">
+                        <path fill="#2C3E50" d="M80,80 C80,90 70,95 60,95 C50,95 40,90 40,80 V60 C40,50 50,45 60,45 C70,45 80,50 80,60 V80 Z"/>
+                        <path fill="#F39C12" d="M60,45 C70,45 80,50 80,60 C80,70 70,75 60,75 C50,75 40,70 40,60 C40,50 50,45 60,45 Z"/>
+                        <path fill="#fff" d="M60,60 C65,60 70,65 70,70 C70,75 65,80 60,80 C55,80 50,75 50,70 C50,65 55,60 60,60 Z"/>
+                        <path fill="#000" d="M60,65 C62.5,65 65,67.5 65,70 C65,72.5 62.5,75 60,75 C57.5,75 55,72.5 55,70 C55,67.5 57.5,65 60,65 Z"/>
+                        <path fill="#2C3E50" d="M60,70 Q60,75 55,75 Q55,70 60,70 Z"/>
+                        <path fill="#F1C40F" d="M45,45 C45,55 55,60 65,60 C75,60 85,55 85,45 C85,35 75,30 65,30 C55,30 45,35 45,45 Z"/>
+                        <path fill="#000" d="M55,40 C57.5,40 60,42.5 60,45 C60,47.5 57.5,50 55,50 C52.5,50 50,47.5 50,45 C50,42.5 52.5,40 55,40 Z M65,40 C67.5,40 70,42.5 70,45 C70,47.5 67.5,50 65,50 C62.5,50 60,47.5 60,45 C60,42.5 62.5,40 65,40 Z"/>
+                        <path fill="#E74C3C" d="M60,55 C65,55 70,50 70,45 C70,40 65,35 60,35 C55,35 50,40 50,45 C50,50 55,55 60,55 Z"/>
+                        <path fill="#000" d="M60,55 C62.5,55 65,52.5 65,50 C65,47.5 62.5,45 60,45 C57.5,45 55,47.5 55,50 C55,52.5 57.5,55 60,55 Z"/>
+                        <path fill="#C0392B" d="M60,55 C62.5,55 65,52.5 65,50 C65,47.5 62.5,45 60,45 C57.5,45 55,47.5 55,50 C55,52.5 57.5,55 60,55 Z"/>
+                        <path fill="#ECF0F1" d="M60,50 C62.5,50 65,47.5 65,45 C65,42.5 62.5,40 60,40 C57.5,40 55,42.5 55,45 C55,47.5 57.5,50 60,50 Z"/>
+                        <path fill="#000" d="M50,85 C55,85 60,90 60,95 C60,100 55,100 50,100 C45,100 40,95 40,90 C40,85 45,85 50,85 Z"/>
+                        <path fill="#fff" d="M50,85 Q55,90 60,85 Q65,80 60,80 Q55,75 50,80 Q45,85 50,85 Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-center w-full mt-6 space-x-4">
+            <button id="back-btn" class="bg-indigo-400 text-white font-bold py-2 px-4 rounded-full shadow-lg border-2 border-indigo-500 hover:bg-indigo-500 transition-colors button-style">
+                Previous
+            </button>
+            <button id="next-btn" class="bg-indigo-400 text-white font-bold py-2 px-4 rounded-full shadow-lg border-2 border-indigo-500 hover:bg-indigo-500 transition-colors button-style" disabled>
+                Next
+            </button>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completion-container" class="hidden flex flex-col items-center text-center mt-6">
+            <p id="completion-message" class="text-3xl font-bold text-purple-800 leading-tight mb-4"></p>
+            <button onclick="window.location.reload();" class="bg-pink-400 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-pink-500 hover:bg-pink-500 transition-colors button-style text-xl">
+                Ready for the Next Player!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "What should you do with any decorative stickers on your old Chromebook?",
+                options: [
+                    "Leave them on, the tech team will remove them.",
+                    "Remove them before you turn it in.",
+                    "Add more stickers to make it look nicer."
+                ],
+                answer: "Remove them before you turn it in.",
+                hint: "Stickers on school property can cause damage if not removed carefully. You're responsible for removing them!",
+                info: "Removing stickers from the Chromebook ensures it's clean and ready for the next student. It also helps prevent any residue or damage from being left behind. Thanks for taking care of our property!"
+            },
+            {
+                question: "Where can you find and download school-approved apps like Adobe Creative Cloud and Zoom?",
+                options: [
+                    "The Windows App Store",
+                    "The 'Company Portal' app",
+                    "The school's website"
+                ],
+                answer: "The 'Company Portal' app",
+                hint: "The 'Company Portal' is like our very own app store for the school. It's the only place to get approved software!",
+                info: "The 'Company Portal' is a key tool for your new laptop! It's how you'll get essential apps like Adobe Creative Cloud and Zoom, which are pre-approved and configured for school use. It saves you the trouble of finding and installing them yourself."
+            },
+            {
+                question: "To wirelessly connect your new laptop to a classroom projector, what two keys should you press?",
+                options: [
+                    "Windows + K",
+                    "Ctrl + P",
+                    "Alt + F4"
+                ],
+                answer: "Windows + K",
+                hint: "Think of the 'K' key as in 'K-onnect' to the classroom projector. It's a quick shortcut!",
+                info: "The Windows + K shortcut is super handy for connecting to classroom projectors. Just press it, find the room number, and you're good to go! It's a much easier way than digging through settings menus."
+            },
+            {
+                question: "True or False: The new laptops should be treated with the same level of durability as the old Chromebooks.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "These new laptops are more powerful but also more delicate. They need extra care!",
+                info: "These new laptops are powerful, but they are not built with the same rugged design as the Chromebooks. Be extra careful with them to avoid damage, especially since they're valuable school property."
+            },
+            {
+                question: "Approximately how long should you expect the initial laptop setup to take?",
+                options: [
+                    "5 minutes",
+                    "15 minutes",
+                    "Approximately 30 minutes"
+                ],
+                answer: "Approximately 30 minutes",
+                hint: "It's a full setup process, not just a quick sign-in. It takes a little more time.",
+                info: "The initial setup can take up to 30 minutes because it's installing and configuring important programs and settings in the background to get your laptop ready for school use. Be patient and keep it plugged in!"
+            },
+            {
+                question: "What is the name of the WiFi network you should connect to during the initial setup process?",
+                options: [
+                    "Trinity Hall Student Network",
+                    "Setup",
+                    "TH Staff"
+                ],
+                answer: "Setup",
+                hint: "The network is named for the task it's for.",
+                info: "Connecting to the 'Setup' WiFi network is a critical first step. It ensures your laptop can communicate with the school's systems to get all the necessary software and configurations for a smooth experience. Also, remember to check the 'connect automatically' box to save yourself some hassle in the future! 😉"
+            },
+            {
+                question: "If your laptop shows an 'error' message at the end of setup, what should you do?",
+                options: [
+                    "Just hit 'continue' or 'retry'.",
+                    "Immediately turn off the computer and tell Mr. Kabash.",
+                    "Unplug the computer and plug it back in."
+                ],
+                answer: "Just hit 'continue' or 'retry'.",
+                hint: "The laptop is just asking for a gentle nudge to continue. No need to panic!",
+                info: "Most 'errors' during the setup are just minor hiccups. Hitting 'continue' or 'retry' usually solves the problem, as the laptop is smart enough to find its way back on track. If it's a persistent error, that's when you should see the tech team."
+            },
+            {
+                question: "True or False: Your new laptop works with a capacitive stylus.",
+                options: ["True", "False"],
+                answer: "True",
+                hint: "The screen is a touch screen... what about a stylus?",
+                info: "Yes! These new laptops are compatible with a capacitive stylus, which means you can use one for drawing, writing, and navigating the touchscreen. It's a great feature for creative and note-taking tasks."
+            },
+            {
+                question: "To ensure certain Windows Updates complete properly, what is it important to do?",
+                options: [
+                    "Keep your laptop plugged in while it updates.",
+                    "Do not restart the computer until all updates are finished.",
+                    "Run updates only in the Tech Hub."
+                ],
+                answer: "Keep your laptop plugged in while it updates.",
+                hint: "If you unplug it, it can't finish the job. Keep the power flowing!",
+                info: "Regular Windows Updates are crucial for keeping your laptop secure and performing well. Always let the updates run and restart your machine when prompted while it's plugged in. This ensures the update fully installs and your system is up-to-date."
+            },
+            {
+                question: "What should you do with your old Chromebook charger?",
+                options: [
+                    "Return it along with the Chromebook.",
+                    "Keep it to use as a spare for the new laptop.",
+                    "Throw it away because it won't work with the new laptop."
+                ],
+                answer: "Keep it to use as a spare for the new laptop.",
+                hint: "The charger for your old Chromebook is a great spare for your new laptop.",
+                info: "You should keep your old Chromebook charger! It's compatible with the new laptop and makes for a perfect spare. No need to turn it in. This is a great tip to remember!"
+            },
+            {
+                question: "At the end of your senior year, what is the policy regarding your laptop?",
+                options: [
+                    "You get to keep it for free.",
+                    "You must return it, but there's an option to purchase it.",
+                    "You can sell it to a classmate."
+                ],
+                answer: "You must return it, but there's an option to purchase it.",
+                hint: "The laptops are school property, so you have to give them back, but there's a special option...",
+                info: "The laptops are school property and must be returned at the end of your senior year. However, you have the option to purchase the device, which is a great perk!"
+            },
+            {
+                question: "True or False: The charge on the new laptops may not last as long as the Chromebooks because they are more powerful.",
+                options: ["True", "False"],
+                answer: "True",
+                hint: "The new laptops are better for more demanding tasks, but that comes at a cost.",
+                info: "A key difference is that the new laptops are much more powerful, which is great for things like video editing and coding. However, this increased power means the battery life may not be as long as what you were used to with the Chromebooks."
+            },
+            {
+                question: "True or False: It's okay to put stickers on the new laptop as long as you remove them before returning it.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "The school rules about stickers apply to all school property.",
+                info: "Just like lockers and other school property, the new laptops are to be kept clean and sticker-free. Please do not put stickers on them at all."
+            },
+            {
+                question: "Which of the following is NOT a good practice for keeping your new laptop secure and working well?",
+                options: [
+                    "Do the Windows Updates when they're available.",
+                    "Restart your machine from time to time.",
+                    "Factory resetting the computer once a month."
+                ],
+                answer: "Factory resetting the computer once a month.",
+                hint: "Factory resetting is a last resort, not a routine task.",
+                info: "Doing Windows Updates and restarting your machine periodically are simple but essential practices for keeping your laptop running securely and smoothly. Factory resetting is a drastic step you should only take when directed by the tech team."
+            },
+            {
+                question: "Where is the Tech Hub located?",
+                options: [
+                    "In the library.",
+                    "In the main office.",
+                    "In the Commons."
+                ],
+                answer: "In the Commons.",
+                hint: "Think of where all the action is during lunch and breaks.",
+                info: "The Tech Hub is in the Commons. This is where you'll go for tech support, so it's a great location to remember!"
+            },
+            {
+                question: "What is the primary purpose of the laptop upgrade?",
+                options: [
+                    "To provide a new computer.",
+                    "To transition to powerful student laptop technology.",
+                    "To make laptops easier to repair."
+                ],
+                answer: "To transition to powerful student laptop technology.",
+                hint: "The document mentions a specific type of technology and an 'equipment upgrade'.",
+                info: "The new laptops are part of an exciting upgrade to provide students with more powerful tools for their studies, supporting more demanding academic tasks."
+            },
+            {
+                question: "True or False: You should return your Chromebook charger with the old laptop.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "The document explicitly says what to do with the charger. Look for the 'Process' section.",
+                info: "You should keep your old Chromebook charger! It's a key tip because the new laptops use the same charger, and you'll have a convenient spare."
+            },
+            {
+                question: "What should a student do if their Chromebook has known issues before swapping it?",
+                options: [
+                    "Turn it in anyway and hope for the best.",
+                    "Leave a note on the laptop.",
+                    "Let Mr. Kabash know to take a closer look."
+                ],
+                "answer": "Let Mr. Kabash know to take a closer look.",
+                "hint": "The instructions mention a specific person to contact about issues.",
+                "info": "Letting the tech team know about any issues helps them prepare the old Chromebook and ensures a smooth exchange for you. It's always best to be proactive!"
+            },
+            {
+                question: "When are students required to return the laptop provided to them?",
+                options: [
+                    "At the end of sophomore year.",
+                    "At the end of senior year.",
+                    "At the end of the school year."
+                ],
+                answer: "At the end of senior year.",
+                hint: "The laptops are provided for a specific two-year period.",
+                info: "The laptops are for your junior and senior years, so you are required to return them when you graduate. It's a two-year use period. However, you can also purchase it if you choose."
+            },
+            {
+                question: "True or False: The new laptops are designed for the same rugged, durable use as the Chromebooks.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "The document mentions these laptops should be treated more 'delicately'.",
+                info: "While powerful, the new laptops require more careful handling than the older, more rugged Chromebooks. Be sure to treat them with care!"
+            },
+            {
+                question: "During initial setup, what is the best thing to do when the laptop is configuring programs in the background?",
+                options: [
+                    "Close the laptop lid and come back later.",
+                    "Turn it off and restart it to speed up the process.",
+                    "Keep it plugged in and be patient."
+                ],
+                answer: "Keep it plugged in and be patient.",
+                hint: "Don't mess with the magic behind the scenes! Let it do its thing. 🧙‍♀️",
+                info: "The initial setup is important for getting all your software and settings configured correctly. It happens in the background, so the best thing to do is just let it run its course while plugged in. It's like watching a plant grow; you just have to wait for the results! 🌱"
+            },
+            {
+                question: "What is the recommended tool for downloading school-approved apps?",
+                options: [
+                    "Google Chrome",
+                    "Windows App Store",
+                    "Company Portal"
+                ],
+                answer: "Company Portal",
+                hint: "This is our custom app store, made just for us!",
+                info: "The Company Portal is your go-to hub for all the essential, pre-approved software you'll need for school. It's super convenient and ensures you're always using the right versions of apps."
+            },
+            {
+                question: "True or False: If you get a charger from the Tech Hub, you are allowed to keep it as a spare.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "Chargers from the Tech Hub are for lending, not keeping! 🔄",
+                info: "Tech Hub chargers are school property and should be returned when you're done using them. It's a shared resource for everyone!"
+            },
+            {
+                question: "What should you do if your old Chromebook has known issues before you turn it in?",
+                options: [
+                    "Just leave it on your desk and hope for the best.",
+                    "Let Mr. Kabash know about the issues.",
+                    "Try to fix it yourself before the swap."
+                ],
+                answer: "Let Mr. Kabash know about the issues.",
+                hint: "Communication is key! 🗣️",
+                info: "It's super helpful for the tech team if you let them know about any existing issues beforehand. This allows them to prepare and make the swap process much smoother for everyone!"
+            },
+            {
+                question: "Which of these is a reason the new laptops may have a shorter battery life than the old ones?",
+                options: [
+                    "They are used for more demanding tasks.",
+                    "They have a smaller battery size.",
+                    "They are older technology."
+                ],
+                answer: "They are used for more demanding tasks.",
+                hint: "Think about what makes the new laptops 'powerful' and what that costs.",
+                info: "The new laptops are designed for more demanding academic work, which uses more processing power and energy. This is a trade-off for their improved performance and capabilities!"
+            },
+            {
+                question: "What is the primary purpose of the thorough check at the end of senior year?",
+                options: [
+                    "To make sure you've been using it for school work.",
+                    "To assess the condition of the device.",
+                    "To check for any viruses or unauthorized apps."
+                ],
+                answer: "To assess the condition of the device.",
+                hint: "The document mentions a check to assess the 'condition' of the device.",
+                info: "The thorough check at the end of senior year is to ensure the laptop is in good condition, as it is still school property. It's just like a check on the old Chromebooks."
+            },
+            {
+                question: "True or False: The upgrade is a way to make laptops easier to repair.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "The document says the upgrade is for 'powerful student laptop technology,' not repairability.",
+                info: "The new laptops are an upgrade to more powerful technology. While the tech team will handle repairs, that wasn't the main purpose of the upgrade itself!"
+            },
+            {
+                question: "Which of these is a school-approved app you can download from the 'Company Portal'?",
+                options: [
+                    "Fortnite",
+                    "Adobe Creative Cloud",
+                    "Microsoft Paint"
+                ],
+                answer: "Adobe Creative Cloud",
+                hint: "The document gives a few examples of apps found in the 'Company Portal'.",
+                info: "The Company Portal is where you'll get professional software like Adobe Creative Cloud and Zoom, which are essential for many classes. You can't just download any app you want!"
+            },
+            {
+                question: "When you press the 'Windows + K' shortcut, what will appear in the cast window?",
+                options: [
+                    "A list of available projectors by room number.",
+                    "A prompt to enter a password.",
+                    "A list of your recent files."
+                ],
+                answer: "A list of available projectors by room number.",
+                hint: "The document says to look for 'Room xxx' in the cast window.",
+                info: "This shortcut is a quick way to wirelessly connect to a projector. You just press the keys and then select the room you are in. So easy!"
+            },
+            {
+                question: "What should you bring with you when you go to the Tech Hub for the laptop swap?",
+                options: [
+                    "Only your old Chromebook.",
+                    "Your old Chromebook and any decorative stickers you want to keep.",
+                    "Your old Chromebook and a charger."
+                ],
+                answer: "Your old Chromebook and a charger.",
+                hint: "The document says to gather your current 'laptop gear,' which includes the charger.",
+                info: "You should bring both your old Chromebook and your current charger to the Tech Hub for the swap. The charger is a valuable spare for your new laptop, so it's a good thing to remember!"
+            }
+        ];
+
+        const introductions = [
+            "Hey there, future tech expert! Let's get you ready for your new laptop with a quick quiz. No pressure! 😉",
+            "Greetings, young padawan! Ready to master the way of the new laptop? Let's begin the quiz! ✨",
+            "Alright, let's see how much you know! This quiz is a fun way to review everything before you get your hands on that shiny new tech. Let's go! 🚀",
+            "Welcome, welcome! It's quiz time! Your mission, should you choose to accept it, is to ace this test and prove you're ready for your laptop! 🎮"
+        ];
+        
+        let currentQuestionIndex = 0;
+        let shuffledQuestions = [];
+
+        const quizContainer = document.getElementById('quiz-container');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const completionContainer = document.getElementById('completion-container');
+        const completionMessage = document.getElementById('completion-message');
+        const feedbackPanel = document.getElementById('feedback-panel');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const introductionText = document.getElementById('introduction-text');
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[i], array[j]];
+            }
+        }
+
+        function renderQuestion() {
+            if (currentQuestionIndex < 0) {
+                currentQuestionIndex = 0;
+            }
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                showFinalScreen();
+                return;
+            }
+
+            const questionData = shuffledQuestions[currentQuestionIndex];
+            const isLastQuestion = currentQuestionIndex === shuffledQuestions.length - 1;
+            
+            feedbackPanel.classList.add('hidden');
+            feedbackMessage.innerHTML = '';
+            
+            // Back button logic
+            backBtn.style.display = currentQuestionIndex === 0 ? 'none' : 'block';
+
+            // Next button logic
+            nextBtn.textContent = isLastQuestion ? "Finish" : "Next";
+            nextBtn.disabled = true; // Disable until a correct answer is chosen
+
+            let optionsHtml = '';
+            questionData.options.forEach(option => {
+                optionsHtml += `
+                    <button data-answer="${option}" class="w-full text-left bg-indigo-200 text-indigo-900 py-3 px-4 mb-2 rounded-xl shadow-md border-2 border-indigo-300 hover:bg-indigo-300 transition-colors button-style">
+                        ${option}
+                    </button>
+                `;
+            });
+
+            quizContainer.innerHTML = `
+                <div class="speech-bubble right mb-6 w-full">
+                    <p class="text-xl md:text-2xl font-bold mb-4">Question ${currentQuestionIndex + 1} of 10</p>
+                    <p class="text-lg md:text-xl font-bold">${questionData.question}</p>
+                </div>
+                <div class="options-container w-full">
+                    ${optionsHtml}
+                </div>
+            `;
+
+            // Attach event listeners to new option buttons
+            document.querySelectorAll('.options-container button').forEach(button => {
+                button.addEventListener('click', () => checkAnswer(button, questionData.answer, questionData.hint, questionData.info));
+            });
+        }
+
+        function checkAnswer(selectedButton, correctAnswer, hint, info) {
+            feedbackPanel.classList.remove('hidden');
+
+            if (selectedButton.dataset.answer === correctAnswer) {
+                selectedButton.classList.add('bg-green-400', 'border-green-500');
+                selectedButton.classList.remove('bg-indigo-200', 'border-indigo-300', 'hover:bg-indigo-300');
+                feedbackMessage.innerHTML = `<span class="text-green-600">That's it! You got it! ✨</span><br/><span class="text-base font-normal text-purple-800">${info}</span>`;
+                nextBtn.disabled = false;
+                
+                // Disable all buttons to prevent changing the answer
+                document.querySelectorAll('.options-container button').forEach(button => {
+                    button.disabled = true;
+                });
+            } else {
+                selectedButton.classList.add('bg-red-400', 'border-red-500');
+                feedbackMessage.innerHTML = `<span class="text-red-600">Oops! Not quite. Keep trying! 😅</span><br/><span class="text-base font-normal text-purple-800">${hint}</span>`;
+            }
+        }
+
+        function showFinalScreen() {
+            quizContainer.classList.add('hidden');
+            backBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            feedbackPanel.classList.add('hidden');
+            completionContainer.classList.remove('hidden');
+            completionMessage.innerHTML = "Quiz Complete! You're ready to go! 🎉<br/>Is the next player ready?";
+        }
+
+        // Navigation button logic
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            renderQuestion();
+        });
+
+        backBtn.addEventListener('click', () => {
+            currentQuestionIndex--;
+            renderQuestion();
+        });
+
+        // Initialize the quiz
+        function initQuiz() {
+            // Set a random introduction message
+            const randomIntro = introductions[Math.floor(Math.random() * introductions.length)];
+            introductionText.textContent = randomIntro;
+
+            // Find the Wi-Fi question
+            const wifiQuestionIndex = allQuestions.findIndex(q => q.question.includes("WiFi network you should connect to"));
+            const wifiQuestion = allQuestions[wifiQuestionIndex];
+            
+            // Create a new array without the Wi-Fi question
+            const remainingQuestions = allQuestions.filter((_, index) => index !== wifiQuestionIndex);
+
+            // Shuffle the remaining questions
+            shuffle(remainingQuestions);
+
+            // Build the final quiz array: 9 shuffled questions followed by the Wi-Fi question
+            shuffledQuestions = remainingQuestions.slice(0, 9);
+            shuffledQuestions.push(wifiQuestion);
+            
+            renderQuestion();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
