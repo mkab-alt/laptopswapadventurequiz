@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laptop Swap Adventure Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap');
+        body {
+            font-family: 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #c3aed4 0%, #a0c4ff 100%);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            color: #3b0764;
+        }
+
+        .speech-bubble {
+            position: relative;
+            background: #fff;
+            border: 2px solid #3b0764;
+            border-radius: 1rem;
+            box-shadow: 4px 4px 0 #3b0764;
+            padding: 1.5rem;
+            max-width: 90%;
+        }
+        
+        .speech-bubble.right:before {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid #fff;
+            z-index: 10;
+        }
+
+        .feedback-bubble {
+            background: #fff;
+            border: 2px solid #3b0764;
+            border-radius: 1rem;
+            box-shadow: 4px 4px 0 #3b0764;
+            padding: 1.5rem;
+            position: relative;
+        }
+
+        .feedback-bubble:before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -22px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 20px solid #fff;
+            z-index: 10;
+        }
+        .feedback-bubble:after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: -26px;
+            width: 0;
+            height: 0;
+            border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
+            border-right: 20px solid #3b0764;
+            z-index: 9;
+        }
+
+        .manga-character-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .button-style {
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .button-style:hover {
+            transform: translateY(-2px);
+            box-shadow: 6px 6px 0 #3b0764;
+        }
+
+        .button-style:active {
+            transform: translateY(2px);
+            box-shadow: 2px 2px 0 #3b0764;
+        }
+
+        .button-pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                flex-direction: column;
+            }
+            .manga-character-container {
+                margin-top: 2rem;
+            }
+            .feedback-bubble:before, .feedback-bubble:after {
+                left: 50%;
+                top: -22px;
+                transform: translateX(-50%);
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 20px solid #fff;
+                border-top: none;
+            }
+            .feedback-bubble:after {
+                top: -26px;
+                border-left: 15px solid transparent;
+                border-right: 15px solid transparent;
+                border-bottom: 20px solid #3b0764;
+                border-top: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="max-w-4xl w-full mx-auto p-6 bg-white rounded-3xl shadow-xl border-4 border-purple-900 flex flex-col items-center relative">
+        <h1 class="text-4xl font-bold text-purple-900 mb-2 text-center">Laptop Swap Adventure Quiz</h1>
+        <p class="text-lg text-purple-700 mb-6 text-center">Don't worry, you can guess as many times as you need to get the right answer!</p>
+        <p id="introduction-text" class="text-lg text-purple-700 mb-6 text-center"></p>
+
+        <div class="main-content flex flex-col md:flex-row w-full gap-8">
+ 
+            <!-- Quiz Container -->
+            <div id="quiz-container" class="w-full md:w-1/2 flex flex-col items-center">
+                <!-- Question and Options will be rendered here -->
+            </div>
+
+            <!-- Feedback and Character Panel -->
+            <div id="feedback-panel" class="w-full md:w-1/2 flex flex-col items-center justify-center hidden">
+                <div class="manga-character-container">
+                    <div id="feedback-bubble" class="feedback-bubble text-lg font-bold text-center p-4 min-h-[100px] flex items-center justify-center mb-4">
+                        <p id="feedback-message" class="text-purple-800"></p>
+                    </div>
+ 
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-32 h-32">
+                        <path fill="#2C3E50" d="M80,80 C80,90 70,95 60,95 C50,95 40,90 40,80 V60 C40,50 50,45 60,45 C70,45 80,50 80,60 V80 Z"/>
+                        <path fill="#F39C12" d="M60,45 C70,45 80,50 80,60 C80,70 70,75 60,75 C50,75 40,70 40,60 C40,50 50,45 60,45 Z"/>
+                        <path fill="#fff" d="M60,60 C65,60 70,65 70,70 C70,75 65,80 60,80 C55,80 50,75 50,70 C50,65 55,60 60,60 Z"/>
+                        <path fill="#000" d="M60,65 C62.5,65 65,67.5 65,70 C65,72.5 62.5,75 60,75 C57.5,75 55,72.5 55,70 C55,67.5 57.5,65 60,65 Z"/>
+                
+                        <path fill="#2C3E50" d="M60,70 Q60,75 55,75 Q55,70 60,70 Z"/>
+                        <path fill="#F1C40F" d="M45,45 C45,55 55,60 65,60 C75,60 85,55 85,45 C85,35 75,30 65,30 C55,30 45,35 45,45 Z"/>
+                        <path fill="#000" d="M55,40 C57.5,40 60,42.5 60,45 C60,47.5 57.5,50 55,50 C52.5,50 50,47.5 50,45 C50,42.5 52.5,40 55,40 Z M65,40 C67.5,40 70,42.5 70,45 C70,47.5 67.5,50 65,50 C62.5,50 60,47.5 60,45 C60,42.5 62.5,40 65,40 Z"/>
+                        <path fill="#E74C3C" d="M60,55 C65,55 70,50 70,45 C70,40 65,35 60,35 C55,35 50,40 50,45 C50,50 55,55 60,55 Z"/>
+                        <path fill="#000" d="M60,55 C62.5,55 65,52.5 65,50 C65,47.5 62.5,45 60,45 C57.5,45 55,47.5 55,50 C55,52.5 57.5,55 60,55 Z"/>
+               
+                        <path fill="#C0392B" d="M60,55 C62.5,55 65,52.5 65,50 C65,47.5 62.5,45 60,45 C57.5,45 55,47.5 55,50 C55,52.5 57.5,55 60,55 Z"/>
+                        <path fill="#ECF0F1" d="M60,50 C62.5,50 65,47.5 65,45 C65,42.5 62.5,40 60,40 C57.5,40 55,42.5 55,45 C55,47.5 57.5,50 60,50 Z"/>
+                        <path fill="#000" d="M50,85 C55,85 60,90 60,95 C60,100 55,100 50,100 C45,100 40,95 40,90 C40,85 45,85 50,85 Z"/>
+                        <path fill="#fff" d="M50,85 Q55,90 60,85 Q65,80 60,80 Q55,75 50,80 Q45,85 50,85 Z"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+       
+        <!-- Navigation Buttons -->
+        <div class="flex justify-center w-full mt-6 space-x-4">
+            <button id="back-btn" class="bg-indigo-400 text-white font-bold py-2 px-4 rounded-full shadow-lg border-2 border-indigo-500 hover:bg-indigo-500 transition-colors button-style">
+                Previous
+            </button>
+            <button id="next-btn" class="bg-indigo-400 text-white font-bold py-2 px-4 rounded-full shadow-lg border-2 border-indigo-500 hover:bg-indigo-500 transition-colors button-style" disabled>
+    
+                Next
+            </button>
+        </div>
+
+        <!-- Completion Screen -->
+        <div id="completion-container" class="hidden flex flex-col items-center text-center mt-6">
+            <p id="completion-message" class="text-3xl font-bold text-purple-800 leading-tight mb-4"></p>
+            <button onclick="window.location.reload();" class="bg-pink-400 text-white font-bold py-3 px-6 rounded-full shadow-lg border-2 border-pink-500 hover:bg-pink-500 transition-colors button-style text-xl">
+                Ready for the Next Player!
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const allQuestions = [
+            {
+                question: "What should you do with any decorative stickers on your old Laptop?",
+                options: [
+                
+                    "Leave them on, the tech team will remove them.",
+                    "Remove them before you turn it in.",
+                    "Add more stickers to make it look nicer."
+                ],
+                answer: "Remove them before you turn it in.",
+                hint: "Stickers on school property can cause damage if not removed carefully. You're responsible for removing them!",
+                info: "You can turn it in as is this time, but next time please keep it clean, ready and residue free for the next user. Thanks for taking care of our property!"
+            },
+            {
+                question: "Where can you find and download school-approved apps like Adobe Creative Cloud and Zoom?",
+                options: [
+                    "The Windows App Store",
+             
+                    "The 'Company Portal' app",
+                    "The school's website"
+                ],
+                answer: "The 'Company Portal' app",
+                hint: "The 'Company Portal' is like our very own app store for the school. It's the only place to get approved software!",
+                info: "The 'Company Portal' is a key tool for your new laptop! It's how you'll get essential apps like Adobe Creative Cloud and Zoom, which are pre-approved and configured for school use. It saves you the trouble of finding and installing them yourself."
+            },
+            {
+                question: "To wirelessly connect your new laptop to a classroom projector, what two keys should you press?",
+                options: [
+                    "Windows + K",
+                 
+                    "Ctrl + P",
+                    "Alt + F4"
+                ],
+                answer: "Windows + K",
+                hint: "Think of the 'K' key as in 'K-onnect' to the classroom projector. It's a quick shortcut!",
+      
+                info: "The Windows + K shortcut is super handy for connecting to classroom projectors. Just press it, find the room number, and you're good to go! It's a much easier way than digging through settings menus."
+            },
+            {
+                question: "To ensure certain Windows Updates complete properly, what is it important to do?",
+                options: [
+                    "Keep your laptop plugged in while it updates.",
+                    "Do not restart the computer until all updates are finished.",
+                    "Run updates only in the Tech Hub."
+                ],
+                answer: "Keep your laptop plugged in while it updates.",
+                hint: "If you unplug it, it can't finish the job. Keep the power flowing!",
+                info: "Regular Windows Updates are crucial for keeping your laptop secure and performing well. Always let the updates run and restart your machine when prompted while it's plugged in. This ensures the update fully installs and your system is up-to-date."
+            },
+            {
+                question: "True or False: It's okay to put stickers on the new laptop as long as you remove them before returning it.",
+                options: ["True", "False"],
+                answer: "False",
+                hint: "The school rules about stickers apply to all school property.",
+                info: "Just like lockers and other school property, the new laptops are to be kept clean and sticker-free. Please do not put stickers on them at all."
+            },
+            {
+                // Question 6 is now a multi-select question
+                question: "Which of the following ARE good practices for keeping your new laptop secure and working well? Select all that apply.",
+                options: [
+                    "Do the Windows Updates when they're available.",
+                    "Restart your machine from time to time.",
+                    "Factory resetting the computer once a month."
+                ],
+                answers: [
+                    "Do the Windows Updates when they're available.",
+                    "Restart your machine from time to time."
+                ],
+                hint: "Keeping your laptop updated and restarting it regularly are both simple ways to ensure it works well.",
+                info: "Doing Windows Updates and restarting your machine periodically are simple but essential practices for keeping your laptop running securely and smoothly. Factory resetting is a drastic step you should only take when directed by the tech team."
+            },
+            {
+                question: "What should a someone do if their Laptop has known issues before swapping it?",
+                options: [
+            
+                    "Turn it in anyway and hope for the best.",
+                    "Leave a note on the laptop.",
+                    "Let Mr. Kabash know to take a closer look."
+                ],
+               
+                "answer": "Let Mr. Kabash know to take a closer look.",
+                "hint": "The instructions mention a specific person to contact about issues.",
+                "info": "Letting the tech team know about any issues helps them prepare the old Laptop and ensures a smooth exchange for you. It's always best to be proactive!"
+            },
+            {
+                question: "What is the recommended contact method for hardware issues with the school's Dell laptops, or for issues with your apps or account?",
+                options: [
+                    "Email the Monarch Tech Team at TH.tech@trinityhallnj.org",
+                    "Stop by the Tech Hub and ask the Tech Coordinator",
+                    "Email ACA Computers at Support@trinityhallnj.org"
+                ],
+                answer: "Email ACA Computers at Support@trinityhallnj.org",
+                hint: "If your issue is with hardware, apps, or your account, you should ask ACA.",
+                info: "The document specifies that ACA Computers, a team of off-site engineers, should be contacted for hardware issues with the Dell laptops, and also for issues with your apps or account. While you can see the Tech Coordinator, Mr. Kabash, for on-site advice, it is part of ACA's contract to help teachers with these specific issues, while Mr. Kabash's primary responsibility is to fix student laptops."
+            },
+            {
+                question: "Who should you contact for help sharing a presentation on the big screens in the Commons, or for assistance with an event?",
+                options: [
+                    "ACA Computers",
+                    "Mr. Kabash (Tech Coordinator) and The Monarch Tech Team",
+                    "The school's administration"
+                ],
+                answer: "Mr. Kabash (Tech Coordinator) and The Monarch Tech Team",
+                hint: "The Monarch Tech Team and the Tech Coordinator work together to handle on-site tech support for events and presentations. It's a good idea to schedule this assistance ahead of time.",
+                info: "The document states that the Monarch Tech Team should be contacted at TH.tech@trinityhallnj.org for on-site support, such as sharing a presentation on the big screens in the commons. The Tech Coordinator is there to coordinate and support you, and it's a good idea to get these requests on his calendar ahead of time to ensure everything is ready and that assistance is available if needed."
+            },
+            {
+                question: "True or False: You can keep any gear, such as a laptop, that you borrow from the Tech Hub if you leave a note.",
+                options: [
+                    "True",
+                    "False"
+                ],
+                answer: "False",
+                hint: "Think of the Tech Hub as a library for technology.",
+                info: "The document states that borrowing something from the Tech Hub is 'like a library' and that borrowed items should be signed out. The note is for when you borrow it, not so you can keep it. Borrowed gear is a shared resource for everyone and must be returned."
+            }
+        ];
+
+        const introductions = [
+            "Hey there, future tech expert! Let's get you ready for your new laptop with a quick quiz. No pressure! 😉",
+            "Greetings, young padawan! Ready to master the way of the new laptop? Let's begin the quiz! ✨",
+            "Alright, let's see how much you know! This quiz is a fun way to review everything before you get your hands on that shiny new tech. Let's go! 🚀",
+            "Welcome, welcome! It's quiz time! Your mission, should you choose to accept it, is to ace this test and prove you're ready for your laptop! 🎮"
+        ];
+        
+        let currentQuestionIndex = 0;
+        let shuffledQuestions = [];
+        const quizContainer = document.getElementById('quiz-container');
+        const nextBtn = document.getElementById('next-btn');
+        const backBtn = document.getElementById('back-btn');
+        const completionContainer = document.getElementById('completion-container');
+        const completionMessage = document.getElementById('completion-message');
+        const feedbackPanel = document.getElementById('feedback-panel');
+        const feedbackMessage = document.getElementById('feedback-message');
+        const introductionText = document.getElementById('introduction-text');
+        
+        // This is the specific index for the multi-select question (Question 6)
+        const MULTI_SELECT_QUESTION_INDEX = 5;
+
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[i], array[j]];
+            }
+        }
+
+        function renderQuestion() {
+            if (currentQuestionIndex < 0) {
+                currentQuestionIndex = 0;
+            }
+            if (currentQuestionIndex >= shuffledQuestions.length) {
+                showFinalScreen();
+                return;
+            }
+
+            const questionData = shuffledQuestions[currentQuestionIndex];
+            const isLastQuestion = currentQuestionIndex === shuffledQuestions.length - 1;
+            
+            feedbackPanel.classList.add('hidden');
+            feedbackMessage.innerHTML = '';
+            
+            // Remove pulse class from next button
+            nextBtn.classList.remove('button-pulse', 'bg-purple-600', 'border-purple-700', 'hover:bg-purple-700');
+            nextBtn.classList.add('bg-indigo-400', 'border-indigo-500', 'hover:bg-indigo-500');
+
+            // Back button logic
+            backBtn.style.display = currentQuestionIndex === 0 ? 'none' : 'block';
+
+            // Next button logic
+            nextBtn.textContent = isLastQuestion ? "Finish" : "Next";
+            nextBtn.disabled = true; // Disable until a correct answer is chosen
+
+            let optionsHtml = '';
+            // Check if the current question is the multi-select one (Question 6)
+            const isMultiSelect = currentQuestionIndex === MULTI_SELECT_QUESTION_INDEX;
+            const inputType = isMultiSelect ? 'checkbox' : 'radio';
+
+            questionData.options.forEach((option, index) => {
+                optionsHtml += `
+                    <label class="w-full text-left bg-indigo-200 text-indigo-900 py-3 px-4 mb-2 rounded-xl shadow-md border-2 border-indigo-300 transition-colors button-style cursor-pointer flex items-center">
+                        <input type="${inputType}" name="quiz-option" value="${option}" class="mr-3">
+                        ${option}
+                    </label>
+                `;
+            });
+
+            quizContainer.innerHTML = `
+                <div class="speech-bubble right mb-6 w-full">
+                    <p class="text-xl md:text-2xl font-bold mb-4">Question ${currentQuestionIndex + 1} of 10</p>
+                    <p class="text-lg md:text-xl font-bold">${questionData.question}</p>
+                </div>
+          
+                <div class="options-container w-full">
+                    ${optionsHtml}
+                </div>
+            `;
+            
+            // Attach event listeners to new option buttons
+            if (isMultiSelect) {
+                // For multi-select, check answers on every checkbox change
+                document.querySelectorAll('.options-container input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', () => checkMultiAnswer(questionData.answers, questionData.hint, questionData.info));
+                });
+            } else {
+                // For single-select, check answers immediately when an option is clicked
+                document.querySelectorAll('.options-container input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => checkSingleAnswer(e.target.value, questionData.answer, questionData.hint, questionData.info));
+                });
+            }
+        }
+
+        function checkSingleAnswer(selectedValue, correctAnswer, hint, info) {
+            feedbackPanel.classList.remove('hidden');
+            // First, reset all label styles to allow for new attempts
+            document.querySelectorAll('.options-container label').forEach(label => {
+                label.classList.remove('bg-green-400', 'border-green-500', 'bg-red-400', 'border-red-500');
+                label.classList.add('bg-indigo-200', 'border-indigo-300');
+            });
+
+            const selectedLabel = document.querySelector(`label:has(input[value="${selectedValue}"])`);
+            
+            if (selectedValue === correctAnswer) {
+                // Correct answer
+                selectedLabel.classList.add('bg-green-400', 'border-green-500');
+                selectedLabel.classList.remove('bg-indigo-200', 'border-indigo-300');
+                feedbackMessage.innerHTML = `<span class="text-green-600">That's it! You got it! ✨</span><br/><span class="text-base font-normal text-purple-800">${info}</span>`;
+                
+                // Enable and animate next button
+                nextBtn.disabled = false;
+                nextBtn.classList.add('button-pulse');
+                nextBtn.classList.remove('bg-indigo-400', 'border-indigo-500', 'hover:bg-indigo-500');
+                nextBtn.classList.add('bg-purple-600', 'border-purple-700', 'hover:bg-purple-700');
+
+                // Disable all options after getting it right
+                document.querySelectorAll('.options-container input[type="radio"]').forEach(radio => radio.disabled = true);
+            } else {
+                // Incorrect answer
+                selectedLabel.classList.add('bg-red-400', 'border-red-500');
+                selectedLabel.classList.remove('bg-indigo-200', 'border-indigo-300');
+                feedbackMessage.innerHTML = `<span class="text-red-600">Oops! Not quite. Keep trying! 😅</span><br/><span class="text-base font-normal text-purple-800">${hint}</span>`;
+            }
+        }
+
+        function checkMultiAnswer(correctAnswers, hint, info) {
+            feedbackPanel.classList.remove('hidden');
+            const selectedCheckboxes = Array.from(document.querySelectorAll('.options-container input[type="checkbox"]:checked')).map(cb => cb.value);
+            
+            const isCorrect = selectedCheckboxes.length === correctAnswers.length &&
+                              correctAnswers.every(answer => selectedCheckboxes.includes(answer));
+
+            // Reset all label styles before checking
+            document.querySelectorAll('.options-container label').forEach(label => {
+                label.classList.remove('bg-green-400', 'border-green-500', 'bg-red-400', 'border-red-500', 'bg-yellow-400', 'border-yellow-500');
+                label.classList.add('bg-indigo-200', 'border-indigo-300');
+            });
+
+            // Check if the combination is correct
+            if (isCorrect) {
+                feedbackMessage.innerHTML = `<span class="text-green-600">That's it! You got them all! ✨</span><br/><span class="text-base font-normal text-purple-800">${info}</span>`;
+                nextBtn.disabled = false;
+                nextBtn.classList.add('button-pulse');
+                nextBtn.classList.remove('bg-indigo-400', 'border-indigo-500', 'hover:bg-indigo-500');
+                nextBtn.classList.add('bg-purple-600', 'border-purple-700', 'hover:bg-purple-700');
+
+                // Disable all checkboxes after getting it right
+                document.querySelectorAll('.options-container input[type="checkbox"]').forEach(cb => cb.disabled = true);
+                
+                // Set the correct labels to green
+                document.querySelectorAll('.options-container input[type="checkbox"]').forEach(checkbox => {
+                    const label = document.querySelector(`label:has(input[value="${checkbox.value}"])`);
+                    if (correctAnswers.includes(checkbox.value)) {
+                        label.classList.add('bg-green-400', 'border-green-500');
+                        label.classList.remove('bg-indigo-200', 'border-indigo-300');
+                    }
+                });
+
+            } else {
+                 // Provide feedback on incorrect choices
+                let isAnySelected = selectedCheckboxes.length > 0;
+                let hasIncorrectSelection = selectedCheckboxes.some(answer => !correctAnswers.includes(answer));
+
+                if (isAnySelected) {
+                    feedbackMessage.innerHTML = `<span class="text-red-600">Oops! Not quite. Make sure to select all the correct ones and no incorrect ones. 😅</span><br/><span class="text-base font-normal text-purple-800">${hint}</span>`;
+                } else {
+                    feedbackPanel.classList.add('hidden');
+                }
+
+                document.querySelectorAll('.options-container input[type="checkbox"]').forEach(checkbox => {
+                    const label = document.querySelector(`label:has(input[value="${checkbox.value}"])`);
+                    const isOptionCorrect = correctAnswers.includes(checkbox.value);
+                    const isChecked = checkbox.checked;
+
+                    if (isChecked && isOptionCorrect) {
+                        label.classList.add('bg-green-400', 'border-green-500');
+                        label.classList.remove('bg-indigo-200', 'border-indigo-300');
+                    } else if (isChecked && !isOptionCorrect) {
+                        label.classList.add('bg-red-400', 'border-red-500');
+                        label.classList.remove('bg-indigo-200', 'border-indigo-300');
+                    } else if (!isChecked && isOptionCorrect && hasIncorrectSelection) {
+                         // Only show yellow if they made a wrong choice and there are still correct ones to pick
+                        label.classList.add('bg-yellow-400', 'border-yellow-500');
+                        label.classList.remove('bg-indigo-200', 'border-indigo-300');
+                    }
+                });
+            }
+        }
+
+
+        function showFinalScreen() {
+            quizContainer.classList.add('hidden');
+            backBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+            feedbackPanel.classList.add('hidden');
+            completionContainer.classList.remove('hidden');
+            completionMessage.innerHTML = "Quiz Complete! You're ready to go! 🎉<br/>Is the next player ready?";
+        }
+
+        // Navigation button logic
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            renderQuestion();
+        });
+        backBtn.addEventListener('click', () => {
+            currentQuestionIndex--;
+            renderQuestion();
+        });
+        // Initialize the quiz
+        function initQuiz() {
+            // Set a random introduction message
+            const randomIntro = introductions[Math.floor(Math.random() * introductions.length)];
+            introductionText.textContent = randomIntro;
+            
+            // The questions to be included in the quiz
+            const includedQuestions = [
+                allQuestions[0],
+                allQuestions[1],
+                allQuestions[2],
+                allQuestions[3],
+                allQuestions[4],
+                allQuestions[5],
+                allQuestions[6],
+                allQuestions[7],
+                allQuestions[8],
+                allQuestions[9]
+            ];
+
+            // Shuffle the included questions
+            shuffle(includedQuestions);
+            shuffledQuestions = includedQuestions;
+
+            renderQuestion();
+        }
+
+        window.onload = initQuiz;
+    </script>
+</body>
+</html>
