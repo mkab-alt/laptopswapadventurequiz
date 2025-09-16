@@ -333,8 +333,9 @@
         const feedbackMessage = document.getElementById('feedback-message');
         const introductionText = document.getElementById('introduction-text');
         
-        // This is the specific index for the multi-select question (Question 6)
-        const MULTI_SELECT_QUESTION_INDEX = 5;
+        // This is the specific index for the multi-select question (Question 7 in the final, shuffled array)
+        // The previous index (5) was incorrect and caused a bug with the True/False question
+        const MULTI_SELECT_QUESTION_INDEX = 6;
 
         function shuffle(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -371,7 +372,7 @@
 
             let optionsHtml = '';
             // Check if the current question is the multi-select one (Question 6)
-            const isMultiSelect = currentQuestionIndex === MULTI_SELECT_QUESTION_INDEX;
+            const isMultiSelect = allQuestions.indexOf(questionData) === MULTI_SELECT_QUESTION_INDEX;
             const inputType = isMultiSelect ? 'checkbox' : 'radio';
 
             questionData.options.forEach((option, index) => {
@@ -554,9 +555,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
